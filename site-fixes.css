@@ -1,0 +1,15 @@
+@media (max-width: 680px) {
+  .search-shortcut,
+  .external-links a,
+  .filters button,
+  .read-more,
+  .resource-actions a,
+  .action-disabled {
+    min-height: 44px;
+  }
+
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+  }
+}
