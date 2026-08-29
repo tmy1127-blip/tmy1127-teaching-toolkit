@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="小壁虎老師設計的座位安排工具，可匯入學生名單、隨機安排座位並以拖拉方式調整。" />
+    <meta name="theme-color" content="#101622" />
+    <title>小壁虎老師的座位安排工具</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="brand">小壁虎老師設計</p>
+          <h1>座位安排工具</h1>
+          <p class="subtitle">先選版型，再用拖拉方式快速微調每一個座位。<span class="touch-badge">支援滑鼠與觸控</span></p>
+        </div>
+        <div class="header-actions">
+          <button class="ghost" id="save-button" type="button">儲存座位表</button>
+          <button class="primary" id="random-button" type="button">隨機安排</button>
+        </div>
+      </header>
+
+      <section class="setup card" aria-label="座位表設定">
+        <div class="step"><span>1</span><div><b>貼上學生名單</b><small>每行一位，也可用逗號分隔</small></div></div>
+        <textarea id="names" aria-label="學生名單"></textarea>
+        <button class="secondary" id="import-button" type="button">匯入名單</button>
+        <div class="step"><span>2</span><div><b>選擇座位形式</b><small>切換後仍可自由拖曳</small></div></div>
+        <div>
+          <div class="tabs">
+            <button class="active" id="rows-tab" type="button">分排坐</button>
+            <button id="community-tab" type="button">學習共同體（ㄇ字型）</button>
+          </div>
+          <div class="controls" id="rows-controls">
+            <label>行數 <input id="rows" type="number" min="1" max="10" value="4" /></label>
+            <label>每行座位 <input id="cols" type="number" min="1" max="12" value="7" /></label>
+          </div>
+          <div class="controls hidden" id="community-controls">
+            <span class="control-label">選擇小組數</span>
+            <button class="group-option" data-groups="6" type="button">6 組・24 人</button>
+            <button class="group-option active" data-groups="7" type="button">7 組・28 人</button>
+            <button class="group-option" data-groups="8" type="button">8 組・32 人</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="status" aria-live="polite"><span id="message">可貼上名單後開始安排</span><span id="summary"></span></div>
+
+      <section class="workspace">
+        <aside class="pool card" id="student-pool">
+          <div class="panel-title"><h2>學生名單</h2><span id="unseated-count">0</span></div>
+          <p>拖到座位，或先點姓名再點座位</p>
+          <div class="student-list" id="student-list"></div>
+          <div class="pool-actions">
+            <button id="order-button" type="button">依序安排</button>
+            <button id="clear-button" type="button">全部移回</button>
+          </div>
+        </aside>
+
+        <div class="classroom card">
+          <div class="board" id="board-label">黑板・教室前方</div>
+          <div id="seat-area"></div>
+          <p class="hint">提示：點選已入座的學生，再點另一個座位，也可以交換位置。</p>
+        </div>
+      </section>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>
