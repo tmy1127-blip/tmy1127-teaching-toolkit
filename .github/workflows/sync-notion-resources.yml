@@ -1,6 +1,8 @@
-name: 手動同步 Notion 資源
+name: 同步 Notion 資源
 
 on:
+  schedule:
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -8,7 +10,7 @@ permissions:
 
 concurrency:
   group: sync-notion-resources
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   sync:
