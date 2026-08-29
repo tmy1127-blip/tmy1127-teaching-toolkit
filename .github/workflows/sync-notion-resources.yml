@@ -1,0 +1,79 @@
+name: 手動同步 Notion 資源
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-notion-resources
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: 取得最新公開資源
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 下載網站程式碼
+        uses: actions/checkout@v4
+
+      - name: 取得並檢查最新資源
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          source_url="https://gecko-teacher-tools.gecko1127270785.chatgpt.site/api/resources"
+          temp_file="$(mktemp)"
+          trap 'rm -f "$temp_file"' EXIT
+
+          curl --fail --silent --show-error \
+            --retry 3 --retry-delay 2 \
+            "$source_url" -o "$temp_file"
+
+          jq -e '
+            (.resources | type == "array") and
+            (.resources | length > 0) and
+            all(.resources[];
+              ((keys - ["aiTools", "category", "designUrl", "icon", "id", "note", "order", "publishedAt", "status", "title", "url"]) | length == 0) and
+              (.id | type == "string") and
+              (.title | type == "string") and
+              (.category | type == "string") and
+              (.note | type == "string") and
+              (.url | type == "string") and
+              (.designUrl | type == "string") and
+              (.publishedAt | type == "string") and
+              (.aiTools | type == "array") and
+              (.status | type == "string") and
+              (.order | type == "number") and
+              (.icon | type == "string")
+            )
+          ' "$temp_file" >/dev/null
+
+          if jq -S '.resources' resources.json > current-resources.json && \
+             jq -S '.resources' "$temp_file" > latest-resources.json && \
+             cmp --silent current-resources.json latest-resources.json; then
+            echo "Notion 資源沒有變更，不需要更新。"
+            exit 0
+          fi
+
+          mv "$temp_file" resources.json
+          trap - EXIT
+          rm -f current-resources.json latest-resources.json
+
+      - name: 更新 GitHub Pages 資料
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- resources.json; then
+            echo "沒有需要發布的變更。"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add resources.json
+          git commit -m "同步 Notion 最新資源"
+          git push
