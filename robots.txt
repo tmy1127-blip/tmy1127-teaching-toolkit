@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tmy1127-blip.github.io/tmy1127-teaching-toolkit/sitemap.xml
